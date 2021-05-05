@@ -2,6 +2,7 @@ const debug = require('debug')('slash-command-template:ticket');
 const api = require('./api');
 const payloads = require('./payloads');
 
+
 /*
  *  Send ticket creation confirmation via
  *  chat.postMessage to the user who created it
@@ -10,14 +11,20 @@ const sendConfirmation = async (ticket) => {
   // open a DM channel for that user
   let channel = await api.callAPIMethod('im.open', {
     user: ticket.userId
+  
   })
 
+
   let message = payloads.confirmation({
-    channel_id: channel.channel.id,
+    // channel_id: channel.channel_id,
     title: ticket.title,
     description: ticket.description,
     urgency: ticket.urgency
   });
+
+  console.log('message: ' + ticket.title)
+  console.log('message: ' + ticket.description)
+  console.log('message: ' + ticket.urgency)
 
   let result = await api.callAPIMethod('chat.postMessage', message)
   debug('sendConfirmation: %o', result);

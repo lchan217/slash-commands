@@ -8,6 +8,10 @@ const api = require('./api');
 const payloads = require('./payloads');
 const debug = require('debug')('slash-command-template:index');
 
+const JsonDB = require('node-json-db').JsonDB;
+const db = new JsonDB('tickets', true, false);
+
+
 const app = express();
 
 /*
@@ -35,6 +39,7 @@ app.get('/', (req, res) => {
  * Checks verification token and opens a dialog to capture more info.
  */
 app.post('/command', async (req, res) => {
+    console.log('hit post request?')
   // Verify the signing secret
   if (!signature.isVerified(req)) {
     debug('Verification token mismatch');
@@ -61,6 +66,7 @@ app.post('/command', async (req, res) => {
  * and creates a Helpdesk ticket
  */
 app.post('/interactive', (req, res) => {
+    console.log('hit interactive')
   // Verify the signing secret
   if (!signature.isVerified(req)) {
     debug('Verification token mismatch');
@@ -70,6 +76,11 @@ app.post('/interactive', (req, res) => {
   const body = JSON.parse(req.body.payload);
   res.send('');
   ticket.create(body.user.id, body.view);
+
+  // NEXT: where are we supposed to push this to?
+  if(ticket) {     
+    db.push(`/${ticket}/data[]`, ticket, true);   
+  }
 });
 
 const server = app.listen(process.env.PORT || 5000, () => {
